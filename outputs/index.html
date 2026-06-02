@@ -1,0 +1,433 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pink Retro Calculator</title>
+  <style>
+    :root {
+      --bg-top: #ffe1ef;
+      --bg-bottom: #f7b9d2;
+      --floor: rgba(120, 58, 87, 0.18);
+      --panel: #ffd7e8;
+      --panel-2: #ffc0da;
+      --panel-edge: #d88cac;
+      --panel-shadow: rgba(121, 46, 77, 0.28);
+      --screen: #fff6fb;
+      --screen-edge: #e9b6cc;
+      --text: #6a2b46;
+      --muted: #8a5870;
+      --key: #ffeaf3;
+      --key-edge: #dba7bf;
+      --key-shadow: #c57c9d;
+      --accent: #ff8fbc;
+      --accent-2: #ff6fa8;
+      --danger: #ff9da8;
+      --white: #ffffff;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      font-family: "Segoe UI", "Malgun Gothic", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 50% 18%, rgba(255,255,255,0.85), transparent 32%),
+        radial-gradient(circle at 15% 85%, rgba(255,255,255,0.32), transparent 22%),
+        linear-gradient(180deg, var(--bg-top), var(--bg-bottom));
+      overflow: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(circle at 50% 62%, var(--floor), transparent 34%);
+      pointer-events: none;
+    }
+
+    .calculator {
+      width: min(92vw, 420px);
+      padding: 22px;
+      border-radius: 34px;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.6), transparent 18%),
+        linear-gradient(180deg, var(--panel), var(--panel-2));
+      border: 1px solid rgba(255,255,255,0.75);
+      box-shadow:
+        0 34px 60px var(--panel-shadow),
+        0 14px 0 rgba(255,255,255,0.35),
+        inset 0 1px 0 rgba(255,255,255,0.92),
+        inset 0 -14px 24px rgba(171, 72, 109, 0.12);
+      position: relative;
+      transform: perspective(1200px) translateY(-6px) rotateX(6deg);
+      transform-style: preserve-3d;
+    }
+
+    .calculator::before {
+      content: "";
+      position: absolute;
+      inset: 12px;
+      border-radius: 26px;
+      border: 1px solid rgba(255,255,255,0.45);
+      pointer-events: none;
+    }
+
+    .calculator::after {
+      content: "";
+      position: absolute;
+      left: 8%;
+      right: 8%;
+      bottom: -18px;
+      height: 22px;
+      border-radius: 50%;
+      background: rgba(124, 42, 73, 0.18);
+      filter: blur(18px);
+      z-index: -1;
+    }
+
+    .brand {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 16px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--muted);
+    }
+
+    .brand strong {
+      color: var(--accent-2);
+      font-size: 14px;
+    }
+
+    .display {
+      min-height: 118px;
+      margin-bottom: 18px;
+      padding: 18px 18px 14px;
+      border-radius: 26px;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.98), var(--screen));
+      border: 1px solid var(--screen-edge);
+      box-shadow:
+        inset 0 2px 0 rgba(255,255,255,0.95),
+        inset 0 -12px 20px rgba(214, 152, 178, 0.08),
+        0 10px 18px rgba(149, 80, 111, 0.10);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      overflow: hidden;
+    }
+
+    .history {
+      min-height: 22px;
+      text-align: right;
+      color: var(--muted);
+      font-size: 14px;
+      opacity: 0.95;
+      word-break: break-all;
+    }
+
+    .output {
+      text-align: right;
+      font-size: clamp(2rem, 8vw, 3.3rem);
+      font-weight: 800;
+      line-height: 1.05;
+      letter-spacing: -0.04em;
+      word-break: break-all;
+      text-shadow: 0 1px 0 rgba(255,255,255,0.95);
+    }
+
+    .keys {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+
+    button {
+      appearance: none;
+      border: none;
+      border-radius: 20px;
+      padding: 16px 10px;
+      font-size: 1rem;
+      font-weight: 800;
+      color: var(--text);
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.98), var(--key));
+      border: 1px solid var(--key-edge);
+      box-shadow:
+        0 7px 0 var(--key-shadow),
+        0 14px 18px rgba(122, 55, 84, 0.16),
+        inset 0 1px 0 rgba(255,255,255,0.98);
+      transform: translateY(0);
+      transition: transform 0.08s ease, box-shadow 0.08s ease, filter 0.15s ease;
+      cursor: pointer;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    button:hover { filter: brightness(1.01); }
+    button:active, button.pressed {
+      transform: translateY(5px);
+      box-shadow:
+        0 2px 0 var(--key-shadow),
+        0 8px 12px rgba(122, 55, 84, 0.13),
+        inset 0 1px 0 rgba(255,255,255,0.95);
+    }
+
+    .op {
+      color: #b94b79;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.96), #ffdcee);
+    }
+
+    .equals {
+      color: white;
+      background: linear-gradient(180deg, #ff9dc5, var(--accent-2));
+      box-shadow:
+        0 7px 0 #d85f94,
+        0 14px 18px rgba(122, 55, 84, 0.16),
+        inset 0 1px 0 rgba(255,255,255,0.38);
+    }
+
+    .clear {
+      color: #8a304f;
+      background: linear-gradient(180deg, #ffd2dc, var(--danger));
+      box-shadow:
+        0 7px 0 #d87b88,
+        0 14px 18px rgba(122, 55, 84, 0.16),
+        inset 0 1px 0 rgba(255,255,255,0.96);
+    }
+
+    .wide { grid-column: span 2; }
+
+    .foot {
+      margin-top: 14px;
+      text-align: center;
+      color: rgba(106, 43, 70, 0.75);
+      font-size: 12px;
+    }
+
+    .shine {
+      position: absolute;
+      inset: 0;
+      border-radius: 34px;
+      pointer-events: none;
+      background:
+        radial-gradient(circle at 18% 10%, rgba(255,255,255,0.76), transparent 18%),
+        linear-gradient(135deg, rgba(255,255,255,0.22), transparent 40%);
+      mix-blend-mode: screen;
+      opacity: 0.65;
+    }
+
+    @media (max-width: 480px) {
+      .calculator {
+        transform: perspective(1200px) translateY(-2px) rotateX(4deg);
+      }
+      .keys {
+        gap: 10px;
+      }
+      button {
+        border-radius: 18px;
+        padding: 15px 8px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="calculator" aria-label="레트로 계산기">
+    <div class="shine"></div>
+    <div class="brand">
+      <strong>Retro Calc</strong>
+      <span>Pink 3D Edition</span>
+    </div>
+
+    <section class="display" aria-live="polite">
+      <div class="history" id="history"></div>
+      <div class="output" id="output">0</div>
+    </section>
+
+    <section class="keys" id="keys">
+      <button class="clear" data-action="clear">AC</button>
+      <button class="op" data-action="sign">+/-</button>
+      <button class="op" data-action="percent">%</button>
+      <button class="op" data-value="/">÷</button>
+
+      <button data-value="7">7</button>
+      <button data-value="8">8</button>
+      <button data-value="9">9</button>
+      <button class="op" data-value="*">×</button>
+
+      <button data-value="4">4</button>
+      <button data-value="5">5</button>
+      <button data-value="6">6</button>
+      <button class="op" data-value="-">−</button>
+
+      <button data-value="1">1</button>
+      <button data-value="2">2</button>
+      <button data-value="3">3</button>
+      <button class="op" data-value="+">+</button>
+
+      <button class="wide" data-value="0">0</button>
+      <button data-action="decimal">.</button>
+      <button class="equals" data-action="equals">=</button>
+    </section>
+
+    <div class="foot">숫자, + - × ÷, Enter, Backspace로도 사용 가능</div>
+  </main>
+
+  <script>
+    const output = document.getElementById('output');
+    const history = document.getElementById('history');
+    const keys = document.getElementById('keys');
+
+    let current = '0';
+    let previous = '';
+    let operator = '';
+    let awaitingNext = false;
+    let trail = '';
+
+    const render = () => {
+      output.textContent = current;
+      history.textContent = trail || (previous && operator ? `${previous} ${operator}` : '');
+    };
+
+    const formatNumber = (value) => {
+      if (value === 'Error') return value;
+      const num = Number(value);
+      if (!Number.isFinite(num)) return 'Error';
+      return Number.isInteger(num) ? String(num) : String(parseFloat(num.toFixed(10)));
+    };
+
+    const resetAll = () => {
+      current = '0';
+      previous = '';
+      operator = '';
+      awaitingNext = false;
+      trail = '';
+      render();
+    };
+
+    const inputDigit = (digit) => {
+      if (current === 'Error') resetAll();
+      if (awaitingNext) {
+        current = digit;
+        awaitingNext = false;
+        trail = '';
+        return render();
+      }
+      current = current === '0' ? digit : current + digit;
+      render();
+    };
+
+    const inputDecimal = () => {
+      if (current === 'Error') resetAll();
+      if (awaitingNext) {
+        current = '0.';
+        awaitingNext = false;
+        trail = '';
+        return render();
+      }
+      if (!current.includes('.')) current += '.';
+      render();
+    };
+
+    const calculate = (a, op, b) => {
+      const first = parseFloat(a);
+      const second = parseFloat(b);
+      let result;
+      switch (op) {
+        case '+': result = first + second; break;
+        case '-': result = first - second; break;
+        case '*': result = first * second; break;
+        case '/': result = second === 0 ? NaN : first / second; break;
+        default: result = second;
+      }
+      return Number.isFinite(result) ? formatNumber(String(result)) : 'Error';
+    };
+
+    const applyOperator = (nextOperator) => {
+      if (current === 'Error') return resetAll();
+      const inputValue = parseFloat(current);
+      if (previous === '') {
+        previous = current;
+      } else if (operator && !awaitingNext) {
+        const result = calculate(previous, operator, inputValue);
+        current = result;
+        previous = result;
+      }
+      operator = nextOperator;
+      awaitingNext = true;
+      trail = '';
+      render();
+    };
+
+    const equal = () => {
+      if (!operator || awaitingNext) return;
+      const result = calculate(previous, operator, current);
+      trail = `${previous} ${operator} ${current} =`;
+      current = result;
+      previous = '';
+      operator = '';
+      awaitingNext = true;
+      render();
+    };
+
+    const toggleSign = () => {
+      if (current === '0' || current === 'Error') return;
+      current = current.startsWith('-') ? current.slice(1) : `-${current}`;
+      trail = '';
+      render();
+    };
+
+    const percent = () => {
+      if (current === 'Error') return;
+      current = formatNumber(String(parseFloat(current) / 100));
+      trail = '';
+      render();
+    };
+
+    keys.addEventListener('click', (event) => {
+      const button = event.target.closest('button');
+      if (!button) return;
+      button.classList.add('pressed');
+      setTimeout(() => button.classList.remove('pressed'), 120);
+
+      const { action, value } = button.dataset;
+      if (value) {
+        if ('+-*/'.includes(value)) applyOperator(value);
+        else inputDigit(value);
+        return;
+      }
+      if (action === 'clear') resetAll();
+      if (action === 'decimal') inputDecimal();
+      if (action === 'equals') equal();
+      if (action === 'sign') toggleSign();
+      if (action === 'percent') percent();
+    });
+
+    window.addEventListener('keydown', (event) => {
+      const { key } = event;
+      if (/^\d$/.test(key)) return inputDigit(key);
+      if (key === '.') return inputDecimal();
+      if (key === 'Enter' || key === '=') return equal();
+      if (key === 'Backspace') {
+        if (awaitingNext || current === 'Error') return resetAll();
+        current = current.length > 1 ? current.slice(0, -1) : '0';
+        return render();
+      }
+      if (key === 'Escape') return resetAll();
+      if ('+-*/'.includes(key)) return applyOperator(key);
+    });
+
+    render();
+  </script>
+</body>
+</html>
