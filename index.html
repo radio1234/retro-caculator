@@ -1,0 +1,368 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Retro Calculator</title>
+  <style>
+    :root {
+      --bg1: #dff1fb;
+      --bg2: #b8d8f0;
+      --panel: #d4ecfb;
+      --panel-edge: #8fb9d8;
+      --shadow: rgba(60, 105, 140, 0.25);
+      --text: #24435a;
+      --muted: #5f7d91;
+      --key: #eaf7ff;
+      --key-edge: #aacbe0;
+      --key-shadow: #86afca;
+      --accent: #6eaed6;
+      --accent-deep: #4f8fb8;
+      --danger: #ff8f8f;
+      --glow: rgba(255, 255, 255, 0.72);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      background:
+        radial-gradient(circle at top, rgba(255,255,255,0.8), transparent 40%),
+        linear-gradient(160deg, var(--bg1), var(--bg2));
+      font-family: "Segoe UI", "Malgun Gothic", sans-serif;
+      color: var(--text);
+    }
+
+    .calculator {
+      width: min(92vw, 390px);
+      padding: 22px;
+      border-radius: 30px;
+      background: linear-gradient(180deg, #e8f6ff, var(--panel));
+      border: 1px solid rgba(255,255,255,0.9);
+      box-shadow:
+        0 25px 50px var(--shadow),
+        inset 0 1px 0 rgba(255,255,255,0.9),
+        inset 0 -10px 30px rgba(76, 132, 170, 0.08);
+      position: relative;
+    }
+
+    .calculator::before {
+      content: "";
+      position: absolute;
+      inset: 12px;
+      border-radius: 22px;
+      border: 1px solid rgba(109, 157, 188, 0.25);
+      pointer-events: none;
+    }
+
+    .brand {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 16px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .brand strong {
+      color: var(--accent-deep);
+      font-size: 14px;
+    }
+
+    .display {
+      min-height: 108px;
+      border-radius: 24px;
+      padding: 18px 18px 14px;
+      margin-bottom: 18px;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.92), rgba(228, 244, 254, 0.95));
+      border: 1px solid rgba(130, 175, 207, 0.7);
+      box-shadow:
+        inset 0 2px 0 rgba(255,255,255,0.9),
+        inset 0 -10px 20px rgba(121, 166, 196, 0.08);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      overflow: hidden;
+    }
+
+    .history {
+      min-height: 22px;
+      text-align: right;
+      color: var(--muted);
+      font-size: 14px;
+      opacity: 0.9;
+      word-break: break-all;
+    }
+
+    .output {
+      text-align: right;
+      font-size: clamp(2rem, 8vw, 3.2rem);
+      font-weight: 700;
+      line-height: 1.1;
+      letter-spacing: -0.03em;
+      word-break: break-all;
+      text-shadow: 0 1px 0 rgba(255,255,255,0.9);
+    }
+
+    .keys {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+
+    button {
+      appearance: none;
+      border: none;
+      border-radius: 18px;
+      padding: 16px 10px;
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text);
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.95), var(--key));
+      border: 1px solid var(--key-edge);
+      box-shadow:
+        0 6px 0 var(--key-shadow),
+        0 11px 20px rgba(74, 112, 138, 0.16),
+        inset 0 1px 0 rgba(255,255,255,0.95);
+      transform: translateY(0);
+      transition: transform 0.08s ease, box-shadow 0.08s ease, filter 0.15s ease;
+      cursor: pointer;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    button:hover { filter: brightness(1.02); }
+    button:active, button.pressed {
+      transform: translateY(4px);
+      box-shadow:
+        0 2px 0 var(--key-shadow),
+        0 4px 10px rgba(74, 112, 138, 0.12),
+        inset 0 1px 0 rgba(255,255,255,0.95);
+    }
+
+    .op {
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.95), #d7ebf8);
+      color: var(--accent-deep);
+    }
+
+    .equals {
+      background: linear-gradient(180deg, #8cc7ea, var(--accent));
+      color: white;
+    }
+
+    .clear {
+      background: linear-gradient(180deg, #ffd9d9, var(--danger));
+      color: #7c2d2d;
+    }
+
+    .wide { grid-column: span 2; }
+
+    .foot {
+      margin-top: 14px;
+      text-align: center;
+      color: rgba(36, 67, 90, 0.75);
+      font-size: 12px;
+    }
+
+    .shine {
+      position: absolute;
+      inset: 0;
+      border-radius: 30px;
+      pointer-events: none;
+      background: radial-gradient(circle at 18% 8%, var(--glow), transparent 20%);
+      mix-blend-mode: screen;
+      opacity: 0.5;
+    }
+  </style>
+</head>
+<body>
+  <main class="calculator" aria-label="레트로 계산기">
+    <div class="shine"></div>
+    <div class="brand">
+      <strong>Retro Calc</strong>
+      <span>Pastel Blue Edition</span>
+    </div>
+    <section class="display" aria-live="polite">
+      <div class="history" id="history"></div>
+      <div class="output" id="output">0</div>
+    </section>
+    <section class="keys" id="keys">
+      <button class="clear" data-action="clear">AC</button>
+      <button class="op" data-action="sign">+/-</button>
+      <button class="op" data-action="percent">%</button>
+      <button class="op" data-value="/">÷</button>
+
+      <button data-value="7">7</button>
+      <button data-value="8">8</button>
+      <button data-value="9">9</button>
+      <button class="op" data-value="*">×</button>
+
+      <button data-value="4">4</button>
+      <button data-value="5">5</button>
+      <button data-value="6">6</button>
+      <button class="op" data-value="-">−</button>
+
+      <button data-value="1">1</button>
+      <button data-value="2">2</button>
+      <button data-value="3">3</button>
+      <button class="op" data-value="+">+</button>
+
+      <button class="wide" data-value="0">0</button>
+      <button data-action="decimal">.</button>
+      <button class="equals" data-action="equals">=</button>
+    </section>
+    <div class="foot">키보드로도 사용 가능: 숫자, + - * /, Enter, Backspace</div>
+  </main>
+
+  <script>
+    const output = document.getElementById('output');
+    const history = document.getElementById('history');
+    const keys = document.getElementById('keys');
+
+    let current = '0';
+    let previous = '';
+    let operator = '';
+    let awaitingNext = false;
+    let trail = '';
+
+    const render = () => {
+      output.textContent = current;
+      history.textContent = trail || (previous && operator ? `${previous} ${operator}` : '');
+    };
+
+    const formatNumber = (value) => {
+      if (value === 'Error') return value;
+      const num = Number(value);
+      if (!Number.isFinite(num)) return 'Error';
+      return Number.isInteger(num) ? String(num) : String(parseFloat(num.toFixed(10)));
+    };
+
+    const inputDigit = (digit) => {
+      if (current === 'Error') resetAll();
+      if (awaitingNext) {
+        current = digit;
+        awaitingNext = false;
+        trail = '';
+        return render();
+      }
+      current = current === '0' ? digit : current + digit;
+      render();
+    };
+
+    const inputDecimal = () => {
+      if (awaitingNext) {
+        current = '0.';
+        awaitingNext = false;
+        trail = '';
+        return render();
+      }
+      if (!current.includes('.')) current += '.';
+      render();
+    };
+
+    const resetAll = () => {
+      current = '0';
+      previous = '';
+      operator = '';
+      awaitingNext = false;
+      trail = '';
+      render();
+    };
+
+    const applyOperator = (nextOperator) => {
+      const inputValue = parseFloat(current);
+      if (previous === '') {
+        previous = current;
+      } else if (operator && !awaitingNext) {
+        const result = calculate(previous, operator, inputValue);
+        current = result;
+        previous = result;
+      }
+      operator = nextOperator;
+      awaitingNext = true;
+      render();
+    };
+
+    const calculate = (a, op, b) => {
+      const first = parseFloat(a);
+      const second = parseFloat(b);
+      let result;
+      switch (op) {
+        case '+': result = first + second; break;
+        case '-': result = first - second; break;
+        case '*': result = first * second; break;
+        case '/': result = second === 0 ? NaN : first / second; break;
+        default: result = second;
+      }
+      return Number.isFinite(result) ? formatNumber(String(result)) : 'Error';
+    };
+
+    const equal = () => {
+      if (!operator || awaitingNext) return;
+      const result = calculate(previous, operator, current);
+      trail = `${previous} ${operator} ${current} =`;
+      current = result;
+      previous = '';
+      operator = '';
+      awaitingNext = true;
+      render();
+    };
+
+    const toggleSign = () => {
+      if (current === '0' || current === 'Error') return;
+      current = current.startsWith('-') ? current.slice(1) : `-${current}`;
+      trail = '';
+      render();
+    };
+
+    const percent = () => {
+      if (current === 'Error') return;
+      current = formatNumber(String(parseFloat(current) / 100));
+      trail = '';
+      render();
+    };
+
+    keys.addEventListener('click', (event) => {
+      const button = event.target.closest('button');
+      if (!button) return;
+      button.classList.add('pressed');
+      setTimeout(() => button.classList.remove('pressed'), 120);
+      const { action, value } = button.dataset;
+      if (value) {
+        if ('+-*/'.includes(value)) applyOperator(value);
+        else inputDigit(value);
+        return;
+      }
+      if (action === 'clear') resetAll();
+      if (action === 'decimal') inputDecimal();
+      if (action === 'equals') equal();
+      if (action === 'sign') toggleSign();
+      if (action === 'percent') percent();
+    });
+
+    window.addEventListener('keydown', (event) => {
+      const { key } = event;
+      if (/^\d$/.test(key)) return inputDigit(key);
+      if (key === '.') return inputDecimal();
+      if (key === 'Enter' || key === '=') return equal();
+      if (key === 'Backspace') {
+        if (awaitingNext || current === 'Error') return resetAll();
+        current = current.length > 1 ? current.slice(0, -1) : '0';
+        return render();
+      }
+      if (key === 'Escape') return resetAll();
+      if ('+-*/'.includes(key)) return applyOperator(key);
+    });
+
+    render();
+  </script>
+</body>
+</html>
