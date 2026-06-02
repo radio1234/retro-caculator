@@ -3,58 +3,92 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Retro Calculator</title>
+  <title>Pink Retro Calculator</title>
   <style>
     :root {
-      --bg1: #dff1fb;
-      --bg2: #b8d8f0;
-      --panel: #d4ecfb;
-      --panel-edge: #8fb9d8;
-      --shadow: rgba(60, 105, 140, 0.25);
-      --text: #24435a;
-      --muted: #5f7d91;
-      --key: #eaf7ff;
-      --key-edge: #aacbe0;
-      --key-shadow: #86afca;
-      --accent: #6eaed6;
-      --accent-deep: #4f8fb8;
-      --danger: #ff8f8f;
-      --glow: rgba(255, 255, 255, 0.72);
+      --bg-top: #ffe1ef;
+      --bg-bottom: #f7b9d2;
+      --floor: rgba(120, 58, 87, 0.18);
+      --panel: #ffd7e8;
+      --panel-2: #ffc0da;
+      --panel-edge: #d88cac;
+      --panel-shadow: rgba(121, 46, 77, 0.28);
+      --screen: #fff6fb;
+      --screen-edge: #e9b6cc;
+      --text: #6a2b46;
+      --muted: #8a5870;
+      --key: #ffeaf3;
+      --key-edge: #dba7bf;
+      --key-shadow: #c57c9d;
+      --accent: #ff8fbc;
+      --accent-2: #ff6fa8;
+      --danger: #ff9da8;
+      --white: #ffffff;
     }
 
     * { box-sizing: border-box; }
+
     body {
       margin: 0;
       min-height: 100vh;
       display: grid;
       place-items: center;
-      background:
-        radial-gradient(circle at top, rgba(255,255,255,0.8), transparent 40%),
-        linear-gradient(160deg, var(--bg1), var(--bg2));
       font-family: "Segoe UI", "Malgun Gothic", sans-serif;
       color: var(--text);
+      background:
+        radial-gradient(circle at 50% 18%, rgba(255,255,255,0.85), transparent 32%),
+        radial-gradient(circle at 15% 85%, rgba(255,255,255,0.32), transparent 22%),
+        linear-gradient(180deg, var(--bg-top), var(--bg-bottom));
+      overflow: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(circle at 50% 62%, var(--floor), transparent 34%);
+      pointer-events: none;
     }
 
     .calculator {
-      width: min(92vw, 390px);
+      width: min(92vw, 420px);
       padding: 22px;
-      border-radius: 30px;
-      background: linear-gradient(180deg, #e8f6ff, var(--panel));
-      border: 1px solid rgba(255,255,255,0.9);
+      border-radius: 34px;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.6), transparent 18%),
+        linear-gradient(180deg, var(--panel), var(--panel-2));
+      border: 1px solid rgba(255,255,255,0.75);
       box-shadow:
-        0 25px 50px var(--shadow),
-        inset 0 1px 0 rgba(255,255,255,0.9),
-        inset 0 -10px 30px rgba(76, 132, 170, 0.08);
+        0 34px 60px var(--panel-shadow),
+        0 14px 0 rgba(255,255,255,0.35),
+        inset 0 1px 0 rgba(255,255,255,0.92),
+        inset 0 -14px 24px rgba(171, 72, 109, 0.12);
       position: relative;
+      transform: perspective(1200px) translateY(-6px) rotateX(6deg);
+      transform-style: preserve-3d;
     }
 
     .calculator::before {
       content: "";
       position: absolute;
       inset: 12px;
-      border-radius: 22px;
-      border: 1px solid rgba(109, 157, 188, 0.25);
+      border-radius: 26px;
+      border: 1px solid rgba(255,255,255,0.45);
       pointer-events: none;
+    }
+
+    .calculator::after {
+      content: "";
+      position: absolute;
+      left: 8%;
+      right: 8%;
+      bottom: -18px;
+      height: 22px;
+      border-radius: 50%;
+      background: rgba(124, 42, 73, 0.18);
+      filter: blur(18px);
+      z-index: -1;
     }
 
     .brand {
@@ -62,29 +96,30 @@
       justify-content: space-between;
       align-items: baseline;
       margin-bottom: 16px;
-      letter-spacing: 0.08em;
       text-transform: uppercase;
-      color: var(--muted);
+      letter-spacing: 0.1em;
       font-size: 12px;
-      font-weight: 700;
+      font-weight: 800;
+      color: var(--muted);
     }
 
     .brand strong {
-      color: var(--accent-deep);
+      color: var(--accent-2);
       font-size: 14px;
     }
 
     .display {
-      min-height: 108px;
-      border-radius: 24px;
-      padding: 18px 18px 14px;
+      min-height: 118px;
       margin-bottom: 18px;
+      padding: 18px 18px 14px;
+      border-radius: 26px;
       background:
-        linear-gradient(180deg, rgba(255,255,255,0.92), rgba(228, 244, 254, 0.95));
-      border: 1px solid rgba(130, 175, 207, 0.7);
+        linear-gradient(180deg, rgba(255,255,255,0.98), var(--screen));
+      border: 1px solid var(--screen-edge);
       box-shadow:
-        inset 0 2px 0 rgba(255,255,255,0.9),
-        inset 0 -10px 20px rgba(121, 166, 196, 0.08);
+        inset 0 2px 0 rgba(255,255,255,0.95),
+        inset 0 -12px 20px rgba(214, 152, 178, 0.08),
+        0 10px 18px rgba(149, 80, 111, 0.10);
       display: flex;
       flex-direction: column;
       justify-content: space-between;
@@ -96,18 +131,18 @@
       text-align: right;
       color: var(--muted);
       font-size: 14px;
-      opacity: 0.9;
+      opacity: 0.95;
       word-break: break-all;
     }
 
     .output {
       text-align: right;
-      font-size: clamp(2rem, 8vw, 3.2rem);
-      font-weight: 700;
-      line-height: 1.1;
-      letter-spacing: -0.03em;
+      font-size: clamp(2rem, 8vw, 3.3rem);
+      font-weight: 800;
+      line-height: 1.05;
+      letter-spacing: -0.04em;
       word-break: break-all;
-      text-shadow: 0 1px 0 rgba(255,255,255,0.9);
+      text-shadow: 0 1px 0 rgba(255,255,255,0.95);
     }
 
     .keys {
@@ -119,18 +154,18 @@
     button {
       appearance: none;
       border: none;
-      border-radius: 18px;
+      border-radius: 20px;
       padding: 16px 10px;
       font-size: 1rem;
-      font-weight: 700;
+      font-weight: 800;
       color: var(--text);
       background:
-        linear-gradient(180deg, rgba(255,255,255,0.95), var(--key));
+        linear-gradient(180deg, rgba(255,255,255,0.98), var(--key));
       border: 1px solid var(--key-edge);
       box-shadow:
-        0 6px 0 var(--key-shadow),
-        0 11px 20px rgba(74, 112, 138, 0.16),
-        inset 0 1px 0 rgba(255,255,255,0.95);
+        0 7px 0 var(--key-shadow),
+        0 14px 18px rgba(122, 55, 84, 0.16),
+        inset 0 1px 0 rgba(255,255,255,0.98);
       transform: translateY(0);
       transition: transform 0.08s ease, box-shadow 0.08s ease, filter 0.15s ease;
       cursor: pointer;
@@ -138,29 +173,37 @@
       -webkit-tap-highlight-color: transparent;
     }
 
-    button:hover { filter: brightness(1.02); }
+    button:hover { filter: brightness(1.01); }
     button:active, button.pressed {
-      transform: translateY(4px);
+      transform: translateY(5px);
       box-shadow:
         0 2px 0 var(--key-shadow),
-        0 4px 10px rgba(74, 112, 138, 0.12),
+        0 8px 12px rgba(122, 55, 84, 0.13),
         inset 0 1px 0 rgba(255,255,255,0.95);
     }
 
     .op {
+      color: #b94b79;
       background:
-        linear-gradient(180deg, rgba(255,255,255,0.95), #d7ebf8);
-      color: var(--accent-deep);
+        linear-gradient(180deg, rgba(255,255,255,0.96), #ffdcee);
     }
 
     .equals {
-      background: linear-gradient(180deg, #8cc7ea, var(--accent));
       color: white;
+      background: linear-gradient(180deg, #ff9dc5, var(--accent-2));
+      box-shadow:
+        0 7px 0 #d85f94,
+        0 14px 18px rgba(122, 55, 84, 0.16),
+        inset 0 1px 0 rgba(255,255,255,0.38);
     }
 
     .clear {
-      background: linear-gradient(180deg, #ffd9d9, var(--danger));
-      color: #7c2d2d;
+      color: #8a304f;
+      background: linear-gradient(180deg, #ffd2dc, var(--danger));
+      box-shadow:
+        0 7px 0 #d87b88,
+        0 14px 18px rgba(122, 55, 84, 0.16),
+        inset 0 1px 0 rgba(255,255,255,0.96);
     }
 
     .wide { grid-column: span 2; }
@@ -168,18 +211,33 @@
     .foot {
       margin-top: 14px;
       text-align: center;
-      color: rgba(36, 67, 90, 0.75);
+      color: rgba(106, 43, 70, 0.75);
       font-size: 12px;
     }
 
     .shine {
       position: absolute;
       inset: 0;
-      border-radius: 30px;
+      border-radius: 34px;
       pointer-events: none;
-      background: radial-gradient(circle at 18% 8%, var(--glow), transparent 20%);
+      background:
+        radial-gradient(circle at 18% 10%, rgba(255,255,255,0.76), transparent 18%),
+        linear-gradient(135deg, rgba(255,255,255,0.22), transparent 40%);
       mix-blend-mode: screen;
-      opacity: 0.5;
+      opacity: 0.65;
+    }
+
+    @media (max-width: 480px) {
+      .calculator {
+        transform: perspective(1200px) translateY(-2px) rotateX(4deg);
+      }
+      .keys {
+        gap: 10px;
+      }
+      button {
+        border-radius: 18px;
+        padding: 15px 8px;
+      }
     }
   </style>
 </head>
@@ -188,12 +246,14 @@
     <div class="shine"></div>
     <div class="brand">
       <strong>Retro Calc</strong>
-      <span>Pastel Blue Edition</span>
+      <span>Pink 3D Edition</span>
     </div>
+
     <section class="display" aria-live="polite">
       <div class="history" id="history"></div>
       <div class="output" id="output">0</div>
     </section>
+
     <section class="keys" id="keys">
       <button class="clear" data-action="clear">AC</button>
       <button class="op" data-action="sign">+/-</button>
@@ -219,7 +279,8 @@
       <button data-action="decimal">.</button>
       <button class="equals" data-action="equals">=</button>
     </section>
-    <div class="foot">키보드로도 사용 가능: 숫자, + - * /, Enter, Backspace</div>
+
+    <div class="foot">숫자, + - × ÷, Enter, Backspace로도 사용 가능</div>
   </main>
 
   <script>
@@ -245,6 +306,15 @@
       return Number.isInteger(num) ? String(num) : String(parseFloat(num.toFixed(10)));
     };
 
+    const resetAll = () => {
+      current = '0';
+      previous = '';
+      operator = '';
+      awaitingNext = false;
+      trail = '';
+      render();
+    };
+
     const inputDigit = (digit) => {
       if (current === 'Error') resetAll();
       if (awaitingNext) {
@@ -258,6 +328,7 @@
     };
 
     const inputDecimal = () => {
+      if (current === 'Error') resetAll();
       if (awaitingNext) {
         current = '0.';
         awaitingNext = false;
@@ -265,29 +336,6 @@
         return render();
       }
       if (!current.includes('.')) current += '.';
-      render();
-    };
-
-    const resetAll = () => {
-      current = '0';
-      previous = '';
-      operator = '';
-      awaitingNext = false;
-      trail = '';
-      render();
-    };
-
-    const applyOperator = (nextOperator) => {
-      const inputValue = parseFloat(current);
-      if (previous === '') {
-        previous = current;
-      } else if (operator && !awaitingNext) {
-        const result = calculate(previous, operator, inputValue);
-        current = result;
-        previous = result;
-      }
-      operator = nextOperator;
-      awaitingNext = true;
       render();
     };
 
@@ -303,6 +351,22 @@
         default: result = second;
       }
       return Number.isFinite(result) ? formatNumber(String(result)) : 'Error';
+    };
+
+    const applyOperator = (nextOperator) => {
+      if (current === 'Error') return resetAll();
+      const inputValue = parseFloat(current);
+      if (previous === '') {
+        previous = current;
+      } else if (operator && !awaitingNext) {
+        const result = calculate(previous, operator, inputValue);
+        current = result;
+        previous = result;
+      }
+      operator = nextOperator;
+      awaitingNext = true;
+      trail = '';
+      render();
     };
 
     const equal = () => {
@@ -335,6 +399,7 @@
       if (!button) return;
       button.classList.add('pressed');
       setTimeout(() => button.classList.remove('pressed'), 120);
+
       const { action, value } = button.dataset;
       if (value) {
         if ('+-*/'.includes(value)) applyOperator(value);
